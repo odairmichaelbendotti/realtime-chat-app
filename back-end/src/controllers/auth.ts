@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utils.js";
+import { sendWelcomeEmail } from "../lib/resend.js";
 
 export const authController = {
   signup: async (req: Request, res: Response) => {
@@ -34,10 +35,12 @@ export const authController = {
       if (newUser) {
         generateToken(newUser._id.toString(), res);
 
+        sendWelcomeEmail(newUser.email, newUser.fullname, "#");
+
         res.status(201).json({
           id: newUser._id,
-          fullname: newUser.fullname,
-          email: newUser.email,
+          fullname: newUser.fullname.trim(),
+          email: newUser.email.trim().toLocaleLowerCase(),
           profilePic: newUser.profilePic,
         });
       } else {
