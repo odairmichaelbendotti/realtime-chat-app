@@ -3,11 +3,13 @@ import { fileURLToPath } from "url";
 import { authRoutes } from "./routes/auth.js";
 import { messagesRouter } from "./routes/messages.js";
 import path from "path";
+import { mongoConnect } from "./lib/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -25,4 +27,5 @@ if (process.env.NODE_ENV === "development") {
 
 app.listen(process.env.PORT, () => {
   console.log("Server running on http://localhost:" + process.env.PORT);
+  mongoConnect();
 });
