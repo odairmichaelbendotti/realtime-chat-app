@@ -51,9 +51,40 @@ export const authController = {
     }
   },
   login: async (req: Request, res: Response) => {
-    res.send({ status: "Login endpoint" });
+    const { email, password } = req.body;
+
+    try {
+      const user = await User.findOne({ email });
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "All fields are required." });
+      }
+
+      if (!user) {
+        return res.status(400).json({ message: "E-mail is not found." });
+      }
+
+      const decodedPass = await bcrypt.compare(password, user.password);
+
+      if (!decodedPass) {
+        return res.status(400).json({ message: "Invalid credencials" });
+      }
+
+      generateToken(user.id, res);
+
+      res.status(200).json({
+        id: user.id,
+        fullname: user.fullname,
+        email: user.email,
+        profilePic: user.profilePic,
+      });
+    } catch (err) {
+      console.error(err);
+      return;
+    }
   },
   logout: async (req: Request, res: Response) => {
-    res.send({ status: "Logout endpoint" });
+    res.clearCookie("jwt");
+    res.status(200).json({ message: "Logged out successfully" });
   },
 };
