@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import { generateToken } from "../lib/utils.js";
+import { deleteImgFromTmp, generateToken } from "../lib/utils.js";
 import { sendWelcomeEmail } from "../lib/resend.js";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -104,13 +104,23 @@ export const authController = {
       const profilePath = path.join(__dirname, "../../tmp", file.filename);
 
       // Adicionar a imagem na AWS
-      const newprofilePic = await newAwsProfilePic(
+      const newProfilePic = await newAwsProfilePic(
         profilePath,
         file.filename,
         file.mimetype,
       );
 
-      res.json({ edu: newprofilePic });
+      const deletado = await deleteImgFromTmp(file.filename);
+
+      const updateProfilePic = await User.findByIdAndUpdate(
+        userId,
+        {
+          profilePic: newProfilePic,
+        },
+        { new: true, runValidators: true }, // atualizar e revalida com base no schema
+      );
+
+      res.json(newProfilePic);
     } catch (err) {
       console.error(err);
       return;
