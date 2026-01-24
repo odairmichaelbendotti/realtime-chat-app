@@ -3,6 +3,9 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utils.js";
 import { sendWelcomeEmail } from "../lib/resend.js";
+import { fileURLToPath } from "url";
+import path from "path";
+import { newAwsProfilePic } from "../services/s3.service.js";
 
 export const authController = {
   signup: async (req: Request, res: Response) => {
@@ -86,5 +89,35 @@ export const authController = {
   logout: async (req: Request, res: Response) => {
     res.clearCookie("jwt");
     res.status(200).json({ message: "Logged out successfully" });
+  },
+  updateProfilePic: async (req: Request, res: Response) => {
+    const file = req.file;
+    const userId = req.user._id;
+
+    if (!file)
+      return res.status(400).json({ message: "Profilepic is required" });
+
+    try {
+      // Conversão do caminho relativo para transformar em bytes
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const profilePath = path.join(__dirname, "../../tmp", file.filename);
+
+      // Adicionar a imagem na AWS
+      const newprofilePic = await newAwsProfilePic(
+        profilePath,
+        file.filename,
+        file.mimetype,
+      );
+
+      res.json({ edu: newprofilePic });
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+  },
+  check: async (req: Request, res: Response) => {
+    const user = req.user;
+    res.status(200).json(user);
   },
 };

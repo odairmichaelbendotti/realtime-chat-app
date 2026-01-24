@@ -4,13 +4,14 @@ import { authRoutes } from "./routes/auth.js";
 import { messagesRouter } from "./routes/messages.js";
 import path from "path";
 import { mongoConnect } from "./lib/db.js";
+import cookieParser from "cookie-parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
-
+app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messagesRouter);
