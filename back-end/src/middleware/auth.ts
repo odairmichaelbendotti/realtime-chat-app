@@ -32,6 +32,7 @@ export async function protectRoute(
     req.user = user;
     next();
   } catch (err) {
-    return res.status(500).json({ message: "Erro interno" });
+    console.log(err);
+    return res.status(500).json({ message: "Erro interno", err });
   }
 }

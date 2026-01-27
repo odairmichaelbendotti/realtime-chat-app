@@ -7,6 +7,14 @@ export const messagesRouter = Router();
 
 messagesRouter.get("/contacts", protectRoute, MessageController.getAllContacts);
 messagesRouter.get("/chats", MessageController.getAllChats);
+
+// aqui a ordem importará por conta dos parâmetros dinâmicos
+messagesRouter.get(
+  "/get-chat-partner",
+  protectRoute,
+  MessageController.getChatPartners,
+);
+
 messagesRouter.get(
   "/:id",
   protectRoute,

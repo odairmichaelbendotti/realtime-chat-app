@@ -83,4 +83,35 @@ export const MessageController = {
       return;
     }
   },
+  getChatPartners: async (req: Request, res: Response) => {
+    try {
+      const loggedUser = new mongoose.Types.ObjectId(req.user._id);
+
+      const messages = await Message.find({
+        $or: [{ senderId: loggedUser }, { receiverId: loggedUser }],
+      });
+
+      // abaixo pega os IDs dos parceiros de chat únicos
+      // .equals funciona pq é um objeto do mongoose
+      // .toString() para transformar em uma string normal para depois separar valores repetidos
+      const chatPartnerIds = messages.map((msg) =>
+        msg.senderId.equals(loggedUser)
+          ? msg.receiverId.toString()
+          : msg.senderId.toString(),
+      );
+
+      // forma moderna de separar valores repetidos de um array
+      const uniqueIds = [...new Set(chatPartnerIds)];
+
+      // No mongoose, quando se tem uma lista de IDs e quer buscar tudo em uma única query, você usa o operador $in
+      const partners = await User.find({
+        _id: { $in: uniqueIds },
+      });
+
+      res.json(partners);
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+  },
 };
