@@ -5,7 +5,7 @@ import { deleteImgFromTmp, generateToken } from "../lib/utils.js";
 import { sendWelcomeEmail } from "../lib/resend.js";
 import { fileURLToPath } from "url";
 import path from "path";
-import { newAwsProfilePic } from "../services/s3.service.js";
+import { uploadToS3 } from "../services/s3.service.js";
 
 export const authController = {
   signup: async (req: Request, res: Response) => {
@@ -98,19 +98,14 @@ export const authController = {
       return res.status(400).json({ message: "Profilepic is required" });
 
     try {
-      // Conversão do caminho relativo para transformar em bytes
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
-      const profilePath = path.join(__dirname, "../../tmp", file.filename);
-
-      // Adicionar a imagem na AWS
-      const newProfilePic = await newAwsProfilePic(
-        profilePath,
+      // Adicionar a imagem no S3
+      const newProfilePic = await uploadToS3(
         file.filename,
         file.mimetype,
+        "profile",
       );
 
-      const deletado = await deleteImgFromTmp(file.filename);
+      await deleteImgFromTmp("profile", file.filename);
 
       const updateProfilePic = await User.findByIdAndUpdate(
         userId,

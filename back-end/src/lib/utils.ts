@@ -29,14 +29,20 @@ export function generateToken(
 }
 
 // deletar imagem da pasta temporária pelo id
-export async function deleteImgFromTmp(filename: string) {
-  const tmpFiles = path.join(__dirname, "../../tmp");
-  const files = await fs.readdir(tmpFiles);
+// file é o nome da pasta (profile ou message), filename é o nome do arquivo que vem da requisição
+export async function deleteImgFromTmp(file: string, filename: string) {
+  try {
+    const fileDir = path.join(__dirname, "../../tmp", file);
+    const files = await fs.readdir(fileDir);
 
-  if (files.length > 0) {
-    await fs.unlink(`${tmpFiles}/${filename}`);
-    return `${filename} deletado com sucesso`;
-  } else {
-    return "Não há imagens para serem apagadas";
+    if (files.length > 0) {
+      await fs.unlink(path.join(fileDir, filename));
+      return `${filename} deletado com sucesso`;
+    } else {
+      return "Não há imagens para serem apagadas";
+    }
+  } catch (err) {
+    console.error(err);
+    return;
   }
 }

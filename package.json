@@ -1,8 +1,0 @@
-{
-  "devDependencies": {
-    "@types/cookie-parser": "^1.4.10"
-  },
-  "dependencies": {
-    "cloudinary": "^2.9.0"
-  }
-}
