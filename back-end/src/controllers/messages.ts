@@ -67,6 +67,19 @@ export const MessageController = {
 
       const receiverId = new mongoose.Types.ObjectId(req.params.id);
       const { _id: senderId } = req.user;
+
+      if (senderId.equals(receiverId)) {
+        return res
+          .status(400)
+          .json({ message: "You can`t send messages to yourself" });
+      }
+
+      const receiverExists = await User.findById(receiverId);
+
+      if (!receiverExists) {
+        return res.status(404).json({ message: "Receiver not found" });
+      }
+
       const newMessage = await Message.create({
         senderId,
         receiverId,
@@ -87,6 +100,7 @@ export const MessageController = {
     try {
       const loggedUser = new mongoose.Types.ObjectId(req.user._id);
 
+      // se eu buscar somente por senderId, perderei as mensagens que o usuário recebeu e vice-versa
       const messages = await Message.find({
         $or: [{ senderId: loggedUser }, { receiverId: loggedUser }],
       });
