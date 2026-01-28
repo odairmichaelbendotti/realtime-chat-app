@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAuth } from "../store/useAuth";
 import { useNavigate } from "react-router";
+import PageLoader from "./PageLoader";
 
 export default function PublicRoute({
   children,
@@ -24,7 +25,7 @@ export default function PublicRoute({
   }, [navigate, isChecking, authuser]);
 
   if (isChecking) {
-    return null;
+    return <PageLoader />;
   }
 
   return <>{children}</>;
