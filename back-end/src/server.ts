@@ -5,11 +5,18 @@ import { messagesRouter } from "./routes/messages.js";
 import path from "path";
 import { mongoConnect } from "./lib/db.js";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.use(
+  cors({
+    credentials: true,
+    origin: "http://localhost:5173",
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 // Routes
