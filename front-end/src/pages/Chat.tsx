@@ -1,4 +1,4 @@
-import { useAuth } from "../store/useAuth";
+import { ImageUp, X } from "lucide-react";
 import { useNavigate } from "react-router";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {
@@ -8,10 +8,13 @@ import {
   Circle,
   MessageSquareDashed,
 } from "lucide-react";
-import { use, useState } from "react";
+import { useState } from "react";
 
 export default function Chat() {
   const [confirmDialog, setConfirmDialog] = useState(false);
+  const [img, setImg] = useState<File | null>(null);
+  const [previewImg, setPreviewImg] = useState<string | null>(null);
+  const [text, setText] = useState<string>("");
   const navigate = useNavigate();
   const contacts = [
     {
@@ -97,7 +100,66 @@ export default function Chat() {
     navigate("/");
   };
 
-  const { authuser } = useAuth();
+  const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.length === 0 || e.target.files === null) {
+      console.log("Imagem não enviada");
+      return;
+    }
+
+    setImg(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!img && text.length === 0) {
+      alert("Nenhum dado para enviar");
+      return;
+    }
+
+    const formData = new FormData();
+
+    if (img) {
+      formData.append("image", img);
+
+      const reader = new FileReader();
+      reader.readAsDataURL(img);
+
+      reader.onload = (e) => {
+        setPreviewImg(e.target?.result as string);
+      };
+    }
+
+    if (text) {
+      formData.append("text", text);
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/messages/send/6977b6065e7729ecb5767d01",
+        {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log("deu ruim", data);
+        return;
+      }
+
+      console.log(data);
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+
+    setText("");
+    setImg(null);
+  };
 
   return (
     <div className="h-screen w-full bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex overflow-hidden">
@@ -224,16 +286,80 @@ export default function Chat() {
 
         {/* Área de Input */}
         <div className="bg-slate-800/40 backdrop-blur-sm border-t border-slate-700/50 p-3 md:p-4">
-          <div className="flex items-center gap-2 md:gap-3">
+          {/* Preview de Imagem */}
+          {img && (
+            <div className="mb-4 relative group">
+              <div className="flex items-center justify-between bg-linear-to-r from-slate-800/60 to-slate-900/60 rounded-lg p-3 border border-slate-700/50 backdrop-blur-sm">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="relative w-16 h-16 rounded-md overflow-hidden shrink-0 shadow-lg">
+                    {img ? (
+                      <img
+                        src={previewImg ? previewImg : URL.createObjectURL(img)}
+                        alt="preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-red-500/80 flex items-center justify-center">
+                        <div className="text-center text-white text-xs font-light">
+                          <div className="text-2xl">🖼</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-slate-200 text-sm font-light truncate">
+                      Imagem selecionada
+                    </p>
+                    <p className="text-slate-500 text-xs mt-1">
+                      Pronto para enviar
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setImg(null)}
+                  className="ml-3 shrink-0 p-2 hover:bg-slate-700/50 rounded-lg transition-all duration-200 text-slate-400 hover:text-red-400 group/btn"
+                  title="Remover imagem"
+                >
+                  <X className="w-5 h-5 group-hover/btn:scale-110 transition-transform" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Input escrever mensagem */}
+          <form
+            className="flex items-center gap-2 md:gap-3"
+            onSubmit={handleSubmit}
+          >
             <input
               type="text"
-              placeholder="Digite sua mensagem..."
+              placeholder="Digite sua mensagem"
               className="flex-1 bg-slate-900/50 border border-slate-700 rounded-lg px-3 md:px-4 py-2 md:py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent transition-all"
+              onChange={(e) => setText(e.target.value)}
+              value={text}
             />
-            <button className="bg-slate-700 hover:bg-slate-600 text-slate-100 p-2 md:p-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl shrink-0">
-              <Send className="w-4 md:w-5 h-4 md:h-5" />
+            <label
+              className={` ${img ? "bg-slate-900" : "bg-slate-800 hover:bg-slate-600 cursor-pointer hover:shadow-xl"}  text-slate-100 p-2 md:p-3 rounded-lg transition-all duration-200 shadow-lg shrink-0 relative group`}
+              htmlFor="upload"
+            >
+              <input
+                type="file"
+                id="upload"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => handleUploadImage(e)}
+                disabled={img ? true : false}
+              />
+              <ImageUp
+                className={`w-4 md:w-5 h-4 md:h-5 ${!img && "group-hover:scale-110"} transition-transform`}
+              />
+            </label>
+            <button
+              className={`bg-slate-700 hover:bg-slate-600 text-slate-100 p-2 md:p-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl shrink-0 cursor-pointer group`}
+            >
+              <Send className="w-4 md:w-5 h-4 md:h-5 group-hover:scale-110 transition-transform" />
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
