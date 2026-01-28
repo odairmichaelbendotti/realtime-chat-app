@@ -21,7 +21,10 @@ export const uploadProfilePic = multer({
 const diskStorageMessageImg = multer.diskStorage({
   filename: (req, file, cb) => {
     const prefix = randomUUID();
-    cb(null, `${req.user._id}-message.${file.mimetype.split("/")[1]}`);
+    cb(
+      null,
+      `${prefix}-${req.user._id}-message.${file.mimetype.split("/")[1]}`,
+    );
   },
   destination: (req, file, cb) => {
     cb(null, "tmp/message");
