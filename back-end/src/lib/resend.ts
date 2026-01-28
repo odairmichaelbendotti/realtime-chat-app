@@ -17,9 +17,9 @@ export const sendWelcomeEmail = async (
 
   if (error) {
     console.error("Erro ao enviar email:", error);
-    throw error; // Lança o erro para quem chamou tratar
+    // return por enquanto não parar o código, se parar vai dar pau
   }
 
   console.log("Email enviado com sucesso:", data);
-  return data; // Retorna os dados do email enviado
+  // return data;  Retorna os dados do email enviado
 };

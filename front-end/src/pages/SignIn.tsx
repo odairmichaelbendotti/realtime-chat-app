@@ -122,7 +122,6 @@ export default function SignIn() {
             >
               Entrar
             </button>
-            <Link to="/chat">ver chat</Link>
           </form>
 
           <div className="mt-6 flex items-center gap-2 justify-center text-sm">

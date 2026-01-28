@@ -1,8 +1,15 @@
-import { MessageCircle, Users, Clock, TrendingUp } from "lucide-react";
+import { MessageCircle, Users, Clock, TrendingUp, LogOut } from "lucide-react";
 import { useAuth } from "../store/useAuth";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useState } from "react";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 export default function Welcome() {
+  const [isFetching, setIsFetching] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState(false);
+  const { setAuthUser } = useAuth();
+  const navigate = useNavigate();
+
   const stats = [
     {
       icon: Users,
@@ -30,25 +37,54 @@ export default function Welcome() {
     },
   ];
 
+  const handleLogout = async () => {
+    try {
+      setIsFetching(true);
+      const response = await fetch("http://localhost:3000/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        console.log("Erro ao realizar requisição");
+        return;
+      }
+
+      setAuthUser(null);
+      navigate("/signin");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
   const { authuser } = useAuth();
 
   return (
     <div className="min-h-screen w-full bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      {confirmDialog && (
+        <ConfirmDialog
+          title="logout"
+          onCancel={setConfirmDialog}
+          action={handleLogout}
+          isFetching={isFetching}
+        />
+      )}
+
       <div className="w-full max-w-4xl">
         {/* Card Principal */}
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden">
           {/* Header */}
-          <div className="bg-linear-to-r from-slate-800/80 to-slate-700/80 p-6 text-center border-b border-slate-700/50">
-            <h1 className="text-4xl font-light text-slate-100 mb-2">
-              Bem-vindo
-            </h1>
+          <div className="bg-linear-to-r from-slate-800/80 to-slate-700/80 p-5 text-center border-b border-slate-700/50">
+            <h1 className="text-4xl font-light text-slate-100">Bem-vindo</h1>
             <p className="text-slate-400 text-sm">
               Conecte-se com amigos e comece a conversar
             </p>
           </div>
 
           {/* Informações do Usuário */}
-          <div className="p-5 border-b border-slate-700/30">
+          <div className="p-4 border-b border-slate-700/30">
             <div className="flex items-center gap-6 max-w-2xl mx-auto">
               <img
                 className="w-20 h-20 object-cover rounded-full bg-linear-to-br from-slate-600 to-slate-700 flex items-center justify-center text-slate-100 text-2xl font-light shadow-lg"
@@ -65,8 +101,8 @@ export default function Welcome() {
           </div>
 
           {/* Estatísticas */}
-          <div className="p-5 border-b border-slate-700/30">
-            <h3 className="text-lg font-light text-slate-200 mb-6 text-center">
+          <div className="p-4 border-b border-slate-700/30">
+            <h3 className="text-lg font-light text-slate-200 mb-3 text-center">
               Estatísticas da Comunidade
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -112,12 +148,20 @@ export default function Welcome() {
           </div>
 
           {/* Botão de Ação */}
-          <div className="p-6">
-            <button className="w-full cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-100 font-light py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group">
+          <div className="p-4">
+            <Link
+              to="/chat"
+              className="w-full cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-100 font-light py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+            >
               <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <Link to="/chat" className="text-lg">
-                Entrar no Chat
-              </Link>
+              Entrar no Chat
+            </Link>
+            <button
+              className="w-full cursor-pointer mt-3 bg-slate-900/50 hover:bg-red-900/30 text-slate-300 hover:text-red-400 font-light py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 group border border-slate-700/50 hover:border-red-700/50"
+              onClick={() => setConfirmDialog(true)}
+            >
+              <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Logout
             </button>
             <p className="text-center text-slate-500 text-xs mt-4">
               Ao entrar, você concorda com nossos termos de uso

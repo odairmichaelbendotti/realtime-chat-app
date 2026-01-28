@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAuth } from "../store/useAuth";
 import { useNavigate } from "react-router";
+import PageLoader from "./PageLoader";
 
 export default function Protect({ children }: { children: React.ReactNode }) {
   const { authuser, handleCheckAuth, isChecking } = useAuth();
@@ -19,7 +20,12 @@ export default function Protect({ children }: { children: React.ReactNode }) {
     }
   }, [isChecking]);
 
-  if (isChecking) return null;
+  if (isChecking)
+    return (
+      <div className="w-full h-screen bg-slate-900">
+        <PageLoader />
+      </div>
+    );
   if (!authuser) return null;
 
   return <>{children}</>;

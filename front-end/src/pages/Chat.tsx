@@ -1,8 +1,18 @@
-import { Send, MoreVertical, Search, Circle } from "lucide-react";
 import { useAuth } from "../store/useAuth";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
+import ConfirmDialog from "../components/ConfirmDialog";
+import {
+  Send,
+  MoreVertical,
+  Search,
+  Circle,
+  MessageSquareDashed,
+} from "lucide-react";
+import { use, useState } from "react";
 
 export default function Chat() {
+  const [confirmDialog, setConfirmDialog] = useState(false);
+  const navigate = useNavigate();
   const contacts = [
     {
       id: 1,
@@ -83,17 +93,27 @@ export default function Chat() {
     },
   ];
 
+  const handleNavigateToLobby = () => {
+    navigate("/");
+  };
+
   const { authuser } = useAuth();
 
   return (
     <div className="h-screen w-full bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex overflow-hidden">
+      {confirmDialog && (
+        <ConfirmDialog
+          title="lobby"
+          onCancel={setConfirmDialog}
+          action={handleNavigateToLobby}
+        />
+      )}
       {/* Sidebar de Contatos */}
       <div className="hidden md:flex w-full md:w-80 bg-slate-800/40 backdrop-blur-sm border-r border-slate-700/50 flex-col">
         {/* Header da Sidebar */}
         <div className="p-3 md:p-4 border-b border-slate-700/50">
           <h2 className="text-lg md:text-xl font-light text-slate-100 mb-3">
-            Contatos Online - {authuser?.fullname.split(" ")[0]}
-            <Link to="/signin">Login</Link>
+            Contatos Online
           </h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 w-4 h-4" />
@@ -152,9 +172,21 @@ export default function Chat() {
                 <p className="text-slate-400 text-xs">online</p>
               </div>
             </div>
-            <button className="text-slate-400 hover:text-slate-300 transition-colors">
-              <MoreVertical className="w-4 md:w-5 h-4 md:h-5" />
-            </button>
+            <div className="flex text-slate-400 items-center gap-4">
+              <div
+                className="group flex items-center gap-2 bg-slate-700 py-1 px-3 rounded-md cursor-pointer hover:bg-slate-600 transition-all duration-200"
+                onClick={() => setConfirmDialog(true)}
+              >
+                <MessageSquareDashed
+                  size={14}
+                  className="text-white group-hover:scale-105"
+                />
+                <p className="font-light text-sm">Lobby</p>
+              </div>
+              <button className="text-slate-400 hover:text-slate-300 transition-colors">
+                <MoreVertical className="w-4 md:w-5 h-4 md:h-5" />
+              </button>
+            </div>
           </div>
         </div>
 
