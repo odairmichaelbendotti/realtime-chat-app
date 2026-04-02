@@ -1,4 +1,4 @@
-import { ImageUp, X } from "lucide-react";
+import { ImageUp, X, Zap } from "lucide-react";
 import { useNavigate } from "react-router";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {
@@ -7,6 +7,7 @@ import {
   Search,
   Circle,
   MessageSquareDashed,
+  ArrowLeft,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../store/useAuth";
@@ -38,6 +39,7 @@ export default function Chat() {
   const [text, setText] = useState<string>("");
   const [isMessagesLoading, setIsMessagesLoading] = useState(false);
   const [chatPartner, setChatPartner] = useState<ContactType[]>([]);
+  const [showSidebar, setShowSidebar] = useState(true);
   const [receiver, setReceiver] = useState<ContactType>({
     _id: "",
     email: "",
@@ -46,8 +48,6 @@ export default function Chat() {
   });
   const navigate = useNavigate();
   const { authuser } = useAuth();
-
-  if (!authuser) return;
 
   // get messages from parnter
   useEffect(() => {
@@ -90,11 +90,12 @@ export default function Chat() {
         setChatPartner(data);
       } catch (err) {
         console.error(err);
-      } finally {
       }
     }
     getChatPartnerInfo();
   }, []);
+
+  if (!authuser) return;
 
   const handleNavigateToLobby = () => {
     navigate("/");
@@ -111,6 +112,9 @@ export default function Chat() {
 
   const handleChangeReceiver = (contact: ContactType) => {
     setReceiver(contact);
+    if (window.innerWidth < 768) {
+      setShowSidebar(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -164,8 +168,28 @@ export default function Chat() {
     setImg(null);
   };
 
+  const getInitials = (name: string) => {
+    return name.slice(0, 2).toUpperCase();
+  };
+
   return (
-    <div className="h-screen w-full bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex overflow-hidden">
+    <div className="h-screen w-full bg-[#0a0a0f] relative overflow-hidden flex">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-5%] w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[150px]" />
+      </div>
+
+      {/* Grid Pattern Overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+        }}
+      />
+
       {confirmDialog && (
         <ConfirmDialog
           title="lobby"
@@ -173,19 +197,30 @@ export default function Chat() {
           action={handleNavigateToLobby}
         />
       )}
+
       {/* Sidebar de Contatos */}
-      <div className="hidden md:flex w-full md:w-80 bg-slate-800/40 backdrop-blur-sm border-r border-slate-700/50 flex-col">
+      <div
+        className={`${
+          showSidebar ? "flex" : "hidden md:flex"
+        } absolute md:relative z-20 w-full md:w-80 h-full bg-[#0a0a0f]/95 md:bg-white/[0.02] backdrop-blur-xl border-r border-white/10 flex-col`}
+      >
         {/* Header da Sidebar */}
-        <div className="p-3 md:p-4 border-b border-slate-700/50">
-          <h2 className="text-lg md:text-xl font-light text-slate-100 mb-3">
-            Contatos Online
-          </h2>
+        <div className="p-4 border-b border-white/10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center border border-white/10">
+              <Zap className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">Mensagens</h2>
+              <p className="text-white/40 text-xs">Realtime Chat</p>
+            </div>
+          </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 w-4 h-4" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/30 w-4 h-4" />
             <input
               type="text"
-              placeholder="Buscar..."
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent transition-all"
+              placeholder="Buscar contatos..."
+              className="w-full bg-white/[0.02] border border-white/10 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
             />
           </div>
         </div>
@@ -196,24 +231,28 @@ export default function Chat() {
             chatPartner.map((contact) => (
               <div
                 key={contact._id}
-                className={`p-3 md:p-4 hover:bg-slate-700/30 transition-colors cursor-pointer border-b border-slate-700/30 ${receiver._id === contact._id && "bg-slate-700"}`}
+                className={`p-4 hover:bg-white/[0.03] transition-colors cursor-pointer border-b border-white/5 ${
+                  receiver._id === contact._id &&
+                  "bg-white/[0.05] border-l-2 border-l-cyan-500"
+                }`}
                 onClick={() => handleChangeReceiver(contact)}
               >
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="w-10 md:w-12 h-10 md:h-12 rounded-full bg-linear-to-br from-slate-600 to-slate-700 flex items-center justify-center text-slate-200 font-light text-sm">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center text-white font-semibold text-sm border border-white/10">
                       {contact.profilePic
                         ? contact.profilePic
-                        : contact.fullname.slice(0, 2).toUpperCase()}
+                        : getInitials(contact.fullname)}
                     </div>
-
-                    <Circle className="absolute bottom-0 right-0 w-3 h-3 fill-green-500 text-green-500" />
+                    <Circle className="absolute bottom-0 right-0 w-3 h-3 fill-emerald-500 text-emerald-500 stroke-[3px] stroke-[#0a0a0f]" />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-slate-200 font-light text-sm">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-medium text-sm truncate">
                       {contact.fullname}
                     </h3>
-                    <p className="text-slate-500 text-xs">{contact.email}</p>
+                    <p className="text-white/40 text-xs truncate">
+                      {contact.email}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -222,87 +261,123 @@ export default function Chat() {
       </div>
 
       {/* Área Principal do Chat */}
-
-      {messageList.length === 0 || !messageList ? (
-        <div className=""></div>
-      ) : (
-        <div className="flex-1 flex flex-col w-full">
-          {/* Header do Chat */}
-          <div className="bg-slate-800/40 backdrop-blur-sm border-b border-slate-700/50 p-3 md:p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="w-9 md:w-10 h-9 md:h-10 rounded-full bg-linear-to-br from-slate-600 to-slate-700 flex items-center justify-center text-slate-200 font-light text-xs md:text-sm">
-                    CM
-                  </div>
-                  <Circle className="absolute bottom-0 right-0 w-2 md:w-3 h-2 md:h-3 fill-green-500 text-green-500" />
-                </div>
-                <div>
-                  <h2 className="text-sm md:text-base text-slate-100 font-light">
-                    {receiver.fullname}
-                  </h2>
-                  <p className="text-slate-400 text-xs">online</p>
-                </div>
+      <div
+        className={`flex-1 flex flex-col h-full relative z-10 ${!showSidebar && "hidden md:flex"}`}
+      >
+        {!receiver._id ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-20 h-20 rounded-2xl bg-white/[0.02] border border-white/10 flex items-center justify-center mx-auto mb-4">
+                <MessageSquareDashed className="w-10 h-10 text-white/20" />
               </div>
-              <div className="flex text-slate-400 items-center gap-4">
-                <div
-                  className="group flex items-center gap-2 bg-slate-700 py-1 px-3 rounded-md cursor-pointer hover:bg-slate-600 transition-all duration-200"
-                  onClick={() => setConfirmDialog(true)}
-                >
-                  <MessageSquareDashed
-                    size={14}
-                    className="text-white group-hover:scale-105"
-                  />
-                  <p className="font-light text-sm">Lobby</p>
-                </div>
-                <button className="text-slate-400 hover:text-slate-300 transition-colors">
-                  <MoreVertical className="w-4 md:w-5 h-4 md:h-5" />
-                </button>
-              </div>
+              <p className="text-white/40 text-lg">
+                Selecione um contato para começar
+              </p>
+              <p className="text-white/20 text-sm mt-2">
+                Escolha alguém da lista para iniciar uma conversa
+              </p>
             </div>
           </div>
-
-          {/* Área de Mensagens */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-3 md:p-6 space-y-3 flex flex-col">
-            {messageList.map((message) => {
-              const isSender = authuser?._id === message.senderId;
-              return (
-                <div
-                  key={message._id}
-                  className={`flex ${isSender ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl shadow-md transition-all duration-200 hover:shadow-lg ${
-                      isSender
-                        ? "bg-linear-to-br from-blue-600 to-blue-700 text-slate-50 rounded-br-none"
-                        : "bg-linear-to-br from-slate-700 to-slate-800 text-slate-100 rounded-bl-none"
-                    }`}
+        ) : (
+          <>
+            {/* Header do Chat */}
+            <div className="bg-white/[0.02] backdrop-blur-xl border-b border-white/10 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    className="md:hidden mr-2 text-white/60 hover:text-white"
+                    onClick={() => setShowSidebar(true)}
                   >
-                    <div>
-                      {message.image && (
-                        <img
-                          src={message.image}
-                          className="rounded-lg max-w-25"
-                        />
-                      )}
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center text-white font-semibold text-sm border border-white/10">
+                      {getInitials(receiver.fullname)}
                     </div>
-                    <p className="text-sm md:text-base wrap-break-word leading-relaxed font-light">
-                      {message.text}
+                    <Circle className="absolute bottom-0 right-0 w-2.5 h-2.5 fill-emerald-500 text-emerald-500 stroke-[3px] stroke-[#0a0a0f]" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-white">
+                      {receiver.fullname}
+                    </h2>
+                    <p className="text-emerald-400 text-xs flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                      online
                     </p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    className="flex items-center gap-2 bg-white/[0.05] hover:bg-white/[0.08] text-white/70 hover:text-white py-2 px-3 rounded-xl transition-all duration-200 border border-white/10"
+                    onClick={() => setConfirmDialog(true)}
+                  >
+                    <MessageSquareDashed className="w-4 h-4" />
+                    <span className="text-sm hidden sm:inline">Lobby</span>
+                  </button>
+                  <button className="text-white/40 hover:text-white transition-colors p-2 hover:bg-white/[0.05] rounded-xl">
+                    <MoreVertical className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
 
-          {/* Área de Input */}
-          <div className="bg-slate-800/40 backdrop-blur-sm border-t border-slate-700/50 p-3 md:p-4">
-            {/* Preview de Imagem */}
-            {img && (
-              <div className="mb-4 relative group">
-                <div className="flex items-center justify-between bg-linear-to-r from-slate-800/60 to-slate-900/60 rounded-lg p-3 border border-slate-700/50 backdrop-blur-sm">
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="relative w-16 h-16 rounded-md overflow-hidden shrink-0 shadow-lg">
+            {/* Área de Mensagens */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
+              {messageList.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-white/20 text-sm">
+                    Nenhuma mensagem ainda. Comece a conversa!
+                  </p>
+                </div>
+              ) : (
+                messageList.map((message) => {
+                  const isSender = authuser?._id === message.senderId;
+                  return (
+                    <div
+                      key={message._id}
+                      className={`flex ${isSender ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[85%] sm:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-lg transition-all duration-200 ${
+                          isSender
+                            ? "bg-gradient-to-br from-cyan-500 to-blue-500 text-white rounded-br-sm shadow-cyan-500/20"
+                            : "bg-white/[0.05] border border-white/10 text-white rounded-bl-sm"
+                        }`}
+                      >
+                        <div>
+                          {message.image && (
+                            <img
+                              src={message.image}
+                              className="rounded-xl max-w-full mb-2"
+                              alt="imagem"
+                            />
+                          )}
+                        </div>
+                        <p className="text-sm leading-relaxed">
+                          {message.text}
+                        </p>
+                        <p
+                          className={`text-[10px] mt-1 ${isSender ? "text-white/60" : "text-white/30"}`}
+                        >
+                          {new Date(message.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Área de Input */}
+            <div className="bg-white/[0.02] backdrop-blur-xl border-t border-white/10 p-4">
+              {/* Preview de Imagem */}
+              {img && (
+                <div className="mb-3 relative">
+                  <div className="flex items-center gap-3 bg-white/[0.03] rounded-xl p-3 border border-white/10">
+                    <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0">
                       {img ? (
                         <img
                           src={
@@ -311,71 +386,66 @@ export default function Chat() {
                           alt="preview"
                           className="w-full h-full object-cover"
                         />
-                      ) : (
-                        <div className="w-full h-full bg-red-500/80 flex items-center justify-center">
-                          <div className="text-center text-white text-xs font-light">
-                            <div className="text-2xl">🖼</div>
-                          </div>
-                        </div>
-                      )}
+                      ) : null}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-slate-200 text-sm font-light truncate">
-                        Imagem selecionada
+                      <p className="text-white text-sm font-medium truncate">
+                        {img.name}
                       </p>
-                      <p className="text-slate-500 text-xs mt-1">
+                      <p className="text-white/40 text-xs">
                         Pronto para enviar
                       </p>
                     </div>
+                    <button
+                      onClick={() => setImg(null)}
+                      className="shrink-0 p-2 hover:bg-white/[0.05] rounded-xl transition-all text-white/40 hover:text-red-400"
+                      title="Remover imagem"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => setImg(null)}
-                    className="ml-3 shrink-0 p-2 hover:bg-slate-700/50 rounded-lg transition-all duration-200 text-slate-400 hover:text-red-400 group/btn"
-                    title="Remover imagem"
-                  >
-                    <X className="w-5 h-5 group-hover/btn:scale-110 transition-transform" />
-                  </button>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Input escrever mensagem */}
-            <form
-              className="flex items-center gap-2 md:gap-3"
-              onSubmit={handleSubmit}
-            >
-              <input
-                type="text"
-                placeholder="Digite sua mensagem"
-                className="flex-1 bg-slate-900/50 border border-slate-700 rounded-lg px-3 md:px-4 py-2 md:py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent transition-all"
-                onChange={(e) => setText(e.target.value)}
-                value={text}
-              />
-              <label
-                className={` ${img ? "bg-slate-900" : "bg-slate-800 hover:bg-slate-600 cursor-pointer hover:shadow-xl"}  text-slate-100 p-2 md:p-3 rounded-lg transition-all duration-200 shadow-lg shrink-0 relative group`}
-                htmlFor="upload"
-              >
+              {/* Input escrever mensagem */}
+              <form className="flex items-center gap-2" onSubmit={handleSubmit}>
                 <input
-                  type="file"
-                  id="upload"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => handleUploadImage(e)}
-                  disabled={img ? true : false}
+                  type="text"
+                  placeholder="Digite sua mensagem..."
+                  className="flex-1 bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
+                  onChange={(e) => setText(e.target.value)}
+                  value={text}
                 />
-                <ImageUp
-                  className={`w-4 md:w-5 h-4 md:h-5 ${!img && "group-hover:scale-110"} transition-transform`}
-                />
-              </label>
-              <button
-                className={`bg-slate-700 hover:bg-slate-600 text-slate-100 p-2 md:p-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl shrink-0 cursor-pointer group`}
-              >
-                <Send className="w-4 md:w-5 h-4 md:h-5 group-hover:scale-110 transition-transform" />
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+                <label
+                  className={`${
+                    img
+                      ? "bg-white/[0.05] cursor-not-allowed"
+                      : "bg-white/[0.05] hover:bg-white/[0.1] cursor-pointer border border-white/10"
+                  } text-white/60 hover:text-white p-3 rounded-xl transition-all duration-200 shrink-0`}
+                  htmlFor="upload"
+                >
+                  <input
+                    type="file"
+                    id="upload"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => handleUploadImage(e)}
+                    disabled={img ? true : false}
+                  />
+                  <ImageUp className="w-5 h-5" />
+                </label>
+                <button
+                  type="submit"
+                  disabled={!text && !img}
+                  className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded-xl transition-all duration-200 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 shrink-0"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </form>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

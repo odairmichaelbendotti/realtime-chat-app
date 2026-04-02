@@ -19,7 +19,7 @@ function ConfirmDialog({
       : "Deseja realmente sair do chat?";
 
   return (
-    <div className="absolute z-10 inset-0 bg-black/50 flex items-center justify-center">
+    <div className="absolute z-50 inset-0 bg-black/50 flex items-center justify-center">
       <div className="bg-slate-800 flex flex-col items-center px-10 py-6 rounded-xl border border-slate-700 shadow-lg">
         <p className="text-slate-200 mb-4">{caption}</p>
         <div className="flex gap-3">
