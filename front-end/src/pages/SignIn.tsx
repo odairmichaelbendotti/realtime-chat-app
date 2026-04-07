@@ -14,7 +14,7 @@ export default function SignIn() {
     password: null,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { setAuthUser } = useAuth();
+  const { setAuthUser, connectSocket } = useAuth();
   const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -46,6 +46,7 @@ export default function SignIn() {
         return;
       }
 
+      connectSocket();
       const data = await response.json();
       setAuthUser(data);
       navigate("/");

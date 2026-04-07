@@ -9,7 +9,7 @@ export default function Protect({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     handleCheckAuth();
-  }, [navigate]);
+  }, [navigate, handleCheckAuth]);
 
   useEffect(() => {
     if (!isChecking) {
@@ -18,7 +18,7 @@ export default function Protect({ children }: { children: React.ReactNode }) {
         return;
       }
     }
-  }, [isChecking]);
+  }, [isChecking, authuser, navigate]);
 
   if (isChecking)
     return (

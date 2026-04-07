@@ -1,6 +1,7 @@
-import jwt from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 import User, { type UserType } from "../models/User.js";
 import { Socket } from "socket.io";
+import type { DecodedUser } from "../types/decoded-user.js";
 
 type NextFunction = (err?: Error) => void;
 
@@ -20,19 +21,18 @@ export const socketAuth = async (socket: Socket, next: NextFunction) => {
     if (!process.env.JWT_SECRET) return;
 
     // verify the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as UserType;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as
+      | DecodedUser
+      | JwtPayload;
     if (!decoded) {
-      console.log("Socket connection rejected: Invalid token");
       return next(new Error("Unauthorized - invalid token"));
     }
 
     // find the user in DB
-    const user = await User.findById(decoded._id);
+    const user = await User.findById(decoded.userId);
 
     // Attach user info to socket
     socket.user = user;
-    socket.user._id = user?._id.toString();
-    console.log(`User authenticated ${user?.fullname}`);
     next();
   } catch (error) {
     console.log(error);

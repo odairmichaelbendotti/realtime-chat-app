@@ -6,11 +6,11 @@ import path from "path";
 import { mongoConnect } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { app, server } from "./lib/socket.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
 app.use(
   cors({
     credentials: true,
@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log("Server running on http://localhost:" + process.env.PORT);
   mongoConnect();
 });
