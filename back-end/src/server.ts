@@ -1,12 +1,13 @@
 import express from "express";
 import { fileURLToPath } from "url";
 import { authRoutes } from "./routes/auth.js";
-import { messagesRouter } from "./routes/messages.js";
+import { messagesRoutes } from "./routes/messages.js";
 import path from "path";
 import { mongoConnect } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { app, server } from "./lib/socket.js";
+import { userRoutes } from "./routes/user.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +22,8 @@ app.use(express.json());
 app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/messages", messagesRouter);
+app.use("/api/messages", messagesRoutes);
+app.use("/api/user", userRoutes);
 
 // Relative path to production
 if (process.env.NODE_ENV === "development") {

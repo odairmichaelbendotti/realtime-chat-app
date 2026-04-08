@@ -3,25 +3,25 @@ import { MessageController } from "../controllers/messages.js";
 import { protectRoute } from "../middleware/auth.js";
 import { uploadMessagePic } from "../config/multer.js";
 
-export const messagesRouter = Router();
+export const messagesRoutes = Router();
 
-messagesRouter.get("/contacts", protectRoute, MessageController.getAllContacts);
-messagesRouter.get("/chats", MessageController.getAllChats);
+messagesRoutes.get("/contacts", protectRoute, MessageController.getAllContacts);
+messagesRoutes.get("/chats", MessageController.getAllChats);
 
 // aqui a ordem importará por conta dos parâmetros dinâmicos
-messagesRouter.get(
+messagesRoutes.get(
   "/get-chat-partner",
   protectRoute,
   MessageController.getChatPartners,
 );
 
-messagesRouter.get(
+messagesRoutes.get(
   "/:id",
   protectRoute,
   MessageController.getAllMessagesByUserId,
 );
 
-messagesRouter.post(
+messagesRoutes.post(
   "/send/:id",
   protectRoute,
   uploadMessagePic.single("image"),

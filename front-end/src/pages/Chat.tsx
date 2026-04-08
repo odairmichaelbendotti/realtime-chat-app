@@ -1,4 +1,4 @@
-import { ImageUp, X, Zap } from "lucide-react";
+import { ImageUp, X, Zap, Users, UserCheck, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {
@@ -243,6 +243,21 @@ export default function Chat() {
               className="w-full md:bg-white/2 border border-white/10 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
             />
           </div>
+
+          <div className="flex gap-2 mt-3">
+            <button className="flex items-center gap-2 bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 hover:text-cyan-200 border border-cyan-500/20 rounded-lg px-3 py-1.5 transition-all duration-200 cursor-pointer">
+              <Users className="w-4 h-4" />
+              <span className="text-xs font-medium">All</span>
+            </button>
+            <button className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white/90 border border-white/10 rounded-lg px-3 py-1.5 transition-all duration-200 cursor-pointer">
+              <UserCheck className="w-4 h-4" />
+              <span className="text-xs font-medium">Friends</span>
+            </button>
+            <button className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white/90 border border-white/10 rounded-lg px-3 py-1.5 transition-all duration-200 cursor-pointer">
+              <UserPlus className="w-4 h-4" />
+              <span className="text-xs font-medium">Requests</span>
+            </button>
+          </div>
         </div>
 
         {/* Lista de Contatos */}
@@ -286,7 +301,7 @@ export default function Chat() {
       >
         {!receiver._id ? (
           <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
+            <div className="text-center flex flex-col items-center">
               <div className="w-20 h-20 rounded-2xl md:bg-white/2 border border-white/10 flex items-center justify-center mx-auto mb-4">
                 <MessageSquareDashed className="w-10 h-10 text-white/20" />
               </div>
@@ -296,6 +311,17 @@ export default function Chat() {
               <p className="text-white/20 text-sm mt-2">
                 Escolha alguém da lista para iniciar uma conversa
               </p>
+              <div className="flex items-center gap-2">
+                <button
+                  className="mt-2 cursor-pointer flex items-center gap-2 bg-white/5 hover:hover:bg-white/8 text-white/70 hover:text-white py-2 px-3 rounded-xl transition-all duration-200 border border-white/10"
+                  onClick={() => setConfirmDialog(true)}
+                >
+                  <MessageSquareDashed className="w-4 h-4" />
+                  <span className="text-sm hidden sm:inline">
+                    Back to lobby
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         ) : (
