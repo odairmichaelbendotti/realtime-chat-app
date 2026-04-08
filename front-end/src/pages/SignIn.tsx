@@ -62,8 +62,8 @@ export default function SignIn() {
     <div className="min-h-screen w-full bg-[#0a0a0f] relative overflow-hidden flex items-center justify-center p-4 sm:p-6">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-cyan-500/15 rounded-full blur-[150px]" />
+        <div className="absolute top-[-10%] right-[-10%] w-125 h-125 bg-purple-500/20 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-150 h-150 bg-cyan-500/15 rounded-full blur-[150px]" />
       </div>
 
       {/* Grid Pattern Overlay */}
@@ -77,10 +77,10 @@ export default function SignIn() {
       />
 
       <div className="w-full max-w-md relative z-10">
-        <div className="bg-white/[0.03] backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
+        <div className="bg-white/3 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
           {/* Header */}
           <div className="relative px-8 py-10 text-center">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-500/50 to-transparent" />
 
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-4">
               <Zap className="w-4 h-4 text-cyan-400" />
@@ -108,7 +108,7 @@ export default function SignIn() {
                   <input
                     type="email"
                     placeholder="seu@email.com"
-                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
+                    className="w-full bg-white/2 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
@@ -125,7 +125,7 @@ export default function SignIn() {
                   <input
                     type="password"
                     placeholder="••••••••"
-                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
+                    className="w-full bg-white/2 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
@@ -137,7 +137,7 @@ export default function SignIn() {
                 <label className="flex items-center text-white/50 cursor-pointer hover:text-white/70 transition-colors">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 rounded bg-white/[0.02] border-white/20 text-cyan-500 focus:ring-cyan-500/30 focus:ring-offset-0 cursor-pointer"
+                    className="w-4 h-4 rounded bg-white/2 border-white/20 text-cyan-500 focus:ring-cyan-500/30 focus:ring-offset-0 cursor-pointer"
                   />
                   <span className="ml-2">Lembrar de mim</span>
                 </label>
@@ -152,7 +152,7 @@ export default function SignIn() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="group w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+                className="group w-full bg-linear-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

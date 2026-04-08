@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { io, Socket } from "socket.io-client";
+import toast from "react-hot-toast";
 
 interface UserInterface {
   _id: string;
@@ -23,6 +24,8 @@ type MyType = {
   onlineUsers: OnlineUsers[] | [];
   connectSocket: () => void;
   disconnectSocket: () => void;
+  joinChat: () => void;
+  userJoined: () => void;
 };
 
 export const useAuth = create<MyType>((set, get) => ({
@@ -68,7 +71,10 @@ export const useAuth = create<MyType>((set, get) => ({
     });
 
     newSocket.on("connect", () => {
-      console.log("Usuário conectado");
+      newSocket?.emit("join-lobby", {
+        userId: authuser?._id,
+        name: authuser?.fullname,
+      });
     });
 
     newSocket.on("users", (users: OnlineUsers[]) => {
@@ -85,5 +91,26 @@ export const useAuth = create<MyType>((set, get) => ({
     }
 
     set({ socket: null });
+  },
+  joinChat: () => {
+    const { socket, authuser } = get();
+
+    if (!socket?.connected) return;
+
+    socket.emit("join_chat", {
+      userId: authuser?._id,
+      name: authuser?.fullname,
+    });
+  },
+  userJoined: () => {
+    const { socket } = get();
+
+    if (!socket?.connected) return;
+
+    socket.off("user_joined");
+
+    socket.on("user_joined", (user) => {
+      toast.success(`${user.name} joined the chat`);
+    });
   },
 }));

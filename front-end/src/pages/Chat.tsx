@@ -47,7 +47,7 @@ export default function Chat() {
     profilePic: "",
   });
   const navigate = useNavigate();
-  const { authuser } = useAuth();
+  const { authuser, joinChat, userJoined } = useAuth();
 
   // get messages from parnter
   useEffect(() => {
@@ -65,13 +65,32 @@ export default function Chat() {
         const data = await response.json();
         setMessageList(data);
       } catch (err) {
-        console.error(err);
+        throw new Error("erro");
+        console.table(err);
       } finally {
         setIsMessagesLoading(false);
       }
     }
     getAllMessagesByPartnerId();
   }, [receiver]);
+
+  useEffect(() => {
+    console.log("Chat montado");
+    joinChat();
+
+    return () => {
+      console.log("Chat desmontado");
+    };
+  }, [joinChat]);
+
+  useEffect(() => {
+    console.log("Entrou no chat");
+    userJoined();
+
+    return () => {
+      console.log("Saiu do chat");
+    };
+  }, [userJoined]);
 
   // get chat partner
   useEffect(() => {
@@ -177,8 +196,8 @@ export default function Chat() {
     <div className="h-screen w-full bg-[#0a0a0f] relative overflow-hidden flex">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-5%] w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[150px]" />
+        <div className="absolute top-[-10%] left-[-5%] w-100 h-100 bg-purple-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-125 h-125 bg-cyan-500/10 rounded-full blur-[150px]" />
       </div>
 
       {/* Grid Pattern Overlay */}
@@ -203,12 +222,12 @@ export default function Chat() {
       <div
         className={`${
           showSidebar ? "flex" : "hidden md:flex"
-        } absolute md:relative z-20 w-full md:w-80 h-full bg-[#0a0a0f]/95 md:bg-white/[0.02] backdrop-blur-xl border-r border-white/10 flex-col`}
+        } absolute md:relative z-20 w-full md:w-80 h-full bg-[#0a0a0f]/95 md:md:bg-white/2 backdrop-blur-xl border-r border-white/10 flex-col`}
       >
         {/* Header da Sidebar */}
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center border border-white/10">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center border border-white/10">
               <Zap className="w-5 h-5 text-cyan-400" />
             </div>
             <div>
@@ -221,7 +240,7 @@ export default function Chat() {
             <input
               type="text"
               placeholder="Buscar contatos..."
-              className="w-full bg-white/[0.02] border border-white/10 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
+              className="w-full md:bg-white/2 border border-white/10 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
             />
           </div>
         </div>
@@ -232,15 +251,15 @@ export default function Chat() {
             chatPartner.map((contact) => (
               <div
                 key={contact._id}
-                className={`p-4 hover:bg-white/[0.03] transition-colors cursor-pointer border-b border-white/5 ${
+                className={`p-4 hover:hover:bg-white/3 transition-colors cursor-pointer border-b border-white/5 ${
                   receiver._id === contact._id &&
-                  "bg-white/[0.05] border-l-2 border-l-cyan-500"
+                  "bg-white/5 border-l-2 border-l-cyan-500"
                 }`}
                 onClick={() => handleChangeReceiver(contact)}
               >
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center text-white font-semibold text-sm border border-white/10">
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center text-white font-semibold text-sm border border-white/10">
                       {contact.profilePic
                         ? contact.profilePic
                         : getInitials(contact.fullname)}
@@ -268,7 +287,7 @@ export default function Chat() {
         {!receiver._id ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <div className="w-20 h-20 rounded-2xl bg-white/[0.02] border border-white/10 flex items-center justify-center mx-auto mb-4">
+              <div className="w-20 h-20 rounded-2xl md:bg-white/2 border border-white/10 flex items-center justify-center mx-auto mb-4">
                 <MessageSquareDashed className="w-10 h-10 text-white/20" />
               </div>
               <p className="text-white/40 text-lg">
@@ -282,7 +301,7 @@ export default function Chat() {
         ) : (
           <>
             {/* Header do Chat */}
-            <div className="bg-white/[0.02] backdrop-blur-xl border-b border-white/10 p-4">
+            <div className="md:bg-white/2 backdrop-blur-xl border-b border-white/10 p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
@@ -292,7 +311,7 @@ export default function Chat() {
                     <ArrowLeft className="w-5 h-5" />
                   </button>
                   <div className="relative">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center text-white font-semibold text-sm border border-white/10">
+                    <div className="w-10 h-10 rounded-xl bg-linear-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center text-white font-semibold text-sm border border-white/10">
                       {getInitials(receiver.fullname)}
                     </div>
                     <Circle className="absolute bottom-0 right-0 w-2.5 h-2.5 fill-emerald-500 text-emerald-500 stroke-[3px] stroke-[#0a0a0f]" />
@@ -309,13 +328,13 @@ export default function Chat() {
                 </div>
                 <div className="flex items-center gap-3">
                   <button
-                    className="flex items-center gap-2 bg-white/[0.05] hover:bg-white/[0.08] text-white/70 hover:text-white py-2 px-3 rounded-xl transition-all duration-200 border border-white/10"
+                    className="flex items-center gap-2 bg-white/5 hover:hover:bg-white/8 text-white/70 hover:text-white py-2 px-3 rounded-xl transition-all duration-200 border border-white/10"
                     onClick={() => setConfirmDialog(true)}
                   >
                     <MessageSquareDashed className="w-4 h-4" />
                     <span className="text-sm hidden sm:inline">Lobby</span>
                   </button>
-                  <button className="text-white/40 hover:text-white transition-colors p-2 hover:bg-white/[0.05] rounded-xl">
+                  <button className="text-white/40 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-xl">
                     <MoreVertical className="w-5 h-5" />
                   </button>
                 </div>
@@ -341,8 +360,8 @@ export default function Chat() {
                       <div
                         className={`max-w-[85%] sm:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-lg transition-all duration-200 ${
                           isSender
-                            ? "bg-gradient-to-br from-cyan-500 to-blue-500 text-white rounded-br-sm shadow-cyan-500/20"
-                            : "bg-white/[0.05] border border-white/10 text-white rounded-bl-sm"
+                            ? "bg-linear-to-br from-cyan-500 to-blue-500 text-white rounded-br-sm shadow-cyan-500/20"
+                            : "bg-white/5 border border-white/10 text-white rounded-bl-sm"
                         }`}
                       >
                         <div>
@@ -373,11 +392,11 @@ export default function Chat() {
             </div>
 
             {/* Área de Input */}
-            <div className="bg-white/[0.02] backdrop-blur-xl border-t border-white/10 p-4">
+            <div className="md:bg-white/2 backdrop-blur-xl border-t border-white/10 p-4">
               {/* Preview de Imagem */}
               {img && (
                 <div className="mb-3 relative">
-                  <div className="flex items-center gap-3 bg-white/[0.03] rounded-xl p-3 border border-white/10">
+                  <div className="flex items-center gap-3 hover:bg-white/3 rounded-xl p-3 border border-white/10">
                     <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0">
                       {img ? (
                         <img
@@ -399,7 +418,7 @@ export default function Chat() {
                     </div>
                     <button
                       onClick={() => setImg(null)}
-                      className="shrink-0 p-2 hover:bg-white/[0.05] rounded-xl transition-all text-white/40 hover:text-red-400"
+                      className="shrink-0 p-2 hover:bg-white/5 rounded-xl transition-all text-white/40 hover:text-red-400"
                       title="Remover imagem"
                     >
                       <X className="w-5 h-5" />
@@ -413,15 +432,15 @@ export default function Chat() {
                 <input
                   type="text"
                   placeholder="Digite sua mensagem..."
-                  className="flex-1 bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
+                  className="flex-1 md:bg-white/2 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all"
                   onChange={(e) => setText(e.target.value)}
                   value={text}
                 />
                 <label
                   className={`${
                     img
-                      ? "bg-white/[0.05] cursor-not-allowed"
-                      : "bg-white/[0.05] hover:bg-white/[0.1] cursor-pointer border border-white/10"
+                      ? "bg-white/5 cursor-not-allowed"
+                      : "bg-white/5 hover:bg-white/10 cursor-pointer border border-white/10"
                   } text-white/60 hover:text-white p-3 rounded-xl transition-all duration-200 shrink-0`}
                   htmlFor="upload"
                 >
@@ -438,7 +457,7 @@ export default function Chat() {
                 <button
                   type="submit"
                   disabled={!text && !img}
-                  className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded-xl transition-all duration-200 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 shrink-0"
+                  className="bg-linear-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded-xl transition-all duration-200 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 shrink-0"
                 >
                   <Send className="w-5 h-5" />
                 </button>

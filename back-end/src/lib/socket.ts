@@ -35,6 +35,10 @@ io.on("connection", (socket) => {
   io.emit("users", users);
   console.log("connect");
 
+  socket.on("join_chat", (user) => {
+    io.emit("user_joined", user);
+  });
+
   socket.on("disconnect", () => {
     users = users.filter((user) => user.socketId !== socket.id);
     io.emit("users", users);
